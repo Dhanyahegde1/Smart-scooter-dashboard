@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Two-Wheeler Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1 class="dashboard-title">
+                    <i class="fas fa-motorcycle"></i>
+                    Smart Two-Wheeler Dashboard
+                </h1>
+                <div class="ml-status">
+                    <div class="status-badge" id="mlStatusBadge">
+                        <div class="status-indicator connecting" id="mlStatusDot"></div>
+                        <span id="mlStatusText">ML Protection Connecting...</span>
+                        <div class="pulse-effect"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="system-mode" id="systemMode">
+                    <div class="mode-indicator normal"></div>
+                    <span>NORMAL MODE</span>
+                </div>
+                <div class="ml-connection" id="mlConnection">
+                    <div class="connection-indicator connecting"></div>
+                    <span id="mlConnectionText">Connecting to ML...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Speed & Performance Panel -->
+                <div class="card performance-card">
+                    <div class="card-header">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <h2>Speed & Performance</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="speed-display">
+                            <div class="speed-value" id="currentSpeed">33.5</div>
+                            <div class="speed-unit">km/h</div>
+                        </div>
+                        <div class="performance-grid">
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <i class="fas fa-rocket"></i>
+                                    Acceleration
+                                </div>
+                                <div class="metric-value" id="acceleration">1.2 m/s²</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <i class="fas fa-battery-three-quarters"></i>
+                                    Battery
+                                </div>
+                                <div class="metric-value" id="batteryLevel">78%</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <i class="fas fa-cogs"></i>
+                                    RPM
+                                </div>
+                                <div class="metric-value" id="rpmValue">3,250</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <i class="fas fa-route"></i>
+                                    Distance
+                                </div>
+                                <div class="metric-value" id="distance">5.2 km</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ML Metrics Panel -->
+                <div class="card ml-card">
+                    <div class="card-header">
+                        <i class="fas fa-brain"></i>
+                        <h2>ML Anomaly Detection</h2>
+                        <div class="ml-model-tag">
+                            <span>LSTM Autoencoder</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="ml-metrics-grid">
+                            <div class="ml-metric">
+                                <div class="ml-metric-header">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Anomaly Score</span>
+                                </div>
+                                <div class="ml-metric-value">
+                                    <div class="anomaly-gauge">
+                                        <div class="gauge-circle">
+                                            <div class="gauge-fill" id="anomalyFill"></div>
+                                            <div class="gauge-text" id="anomalyScore">0.15</div>
+                                        </div>
+                                    </div>
+                                    <div class="ml-metric-status" id="anomalyStatus">
+                                        <i class="fas fa-check-circle"></i>
+                                        Normal Behavior
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="ml-metric">
+                                <div class="ml-metric-header">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>Reconstruction Error</span>
+                                </div>
+                                <div class="ml-metric-value error-display">
+                                    <span class="error-value" id="reconstructionError">0.084</span>
+                                    <div class="error-threshold">
+                                        <span class="threshold-label">Threshold:</span>
+                                        <span class="threshold-value" id="mlThreshold">0.17</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ml-metric">
+                                <div class="ml-metric-header">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>ML Confidence</span>
+                                </div>
+                                <div class="ml-metric-value">
+                                    <div class="confidence-meter">
+                                        <div class="confidence-fill" id="confidenceFill"></div>
+                                        <div class="confidence-text" id="confidenceValue">95.2%</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ml-metric">
+                                <div class="ml-metric-header">
+                                    <i class="fas fa-microchip"></i>
+                                    <span>Model Status</span>
+                                </div>
+                                <div class="ml-metric-value">
+                                    <div class="status-display analyzing" id="mlModelStatus">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <span>Analyzing...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Log Panel -->
+                <div class="card log-card">
+                    <div class="card-header">
+                        <i class="fas fa-history"></i>
+                        <h2>Security Event Log</h2>
+                        <button class="clear-log-btn" id="clearLog">
+                            <i class="fas fa-trash"></i>
+                            Clear
+                        </button>
+                    </div>
+                    <div class="card-content">
+                        <div class="log-container" id="logContainer">
+                            <!-- Log entries will be added here dynamically -->
+                        </div>
+                        <div class="log-controls">
+                            <div class="log-filter">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                                <button class="filter-btn" data-filter="security">Security</button>
+                                <button class="filter-btn" data-filter="ml">ML</button>
+                                <button class="filter-btn" data-filter="system">System</button>
+                            </div>
+                            <div class="log-stats">
+                                <span id="logCount">0 Events</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- GPS Tracking Panel -->
+                <div class="card gps-card">
+                    <div class="card-header">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h2>Live GPS Tracking</h2>
+                        <div class="gps-status">
+                            <i class="fas fa-satellite"></i>
+                            <span>Tracking Active</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div id="map" class="map-container">
+                            <!-- Red pop-up overlay for disabled map -->
+                            <div class="disabled-overlay" id="mapDisabledOverlay">
+                                <div class="disabled-content">
+                                    <div class="disabled-icon">
+                                        <i class="fas fa-ban"></i>
+                                    </div>
+                                    <h3>MAP DISABLED</h3>
+                                    <p>GPS tracking is disabled due to security threat</p>
+                                    <div class="disabled-note">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Refresh page to re-enable after threat clearance
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gps-info">
+                            <div class="gps-coordinates">
+                                <div class="coordinate">
+                                    <span class="coord-label">Latitude:</span>
+                                    <span class="coord-value" id="latitude">12.9166</span>
+                                </div>
+                                <div class="coordinate">
+                                    <span class="coord-label">Longitude:</span>
+                                    <span class="coord-value" id="longitude">77.6161</span>
+                                </div>
+                            </div>
+                            <div class="gps-details">
+                                <div class="detail">
+                                    <i class="fas fa-road"></i>
+                                    <span>BTM Layout Water Tank, Bangalore</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Last Update: <span id="lastUpdate">Just now</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Music System Panel -->
+                <div class="card music-card">
+                    <div class="card-header">
+                        <i class="fas fa-music"></i>
+                        <h2>Music System</h2>
+                        <div class="music-status-indicator" id="musicStatus">
+                            <i class="fas fa-play-circle"></i>
+                            <span>Playing</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <!-- Red pop-up overlay for disabled music -->
+                        <div class="disabled-overlay" id="musicDisabledOverlay">
+                            <div class="disabled-content">
+                                <div class="disabled-icon">
+                                    <i class="fas fa-volume-mute"></i>
+                                </div>
+                                <h3>MUSIC DISABLED</h3>
+                                <p>Audio system is disabled due to security threat</p>
+                                <div class="disabled-note">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Refresh page to re-enable after threat clearance
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="music-player" id="musicPlayer">
+                            <div class="now-playing">
+                                <div class="album-art">
+                                    <i class="fas fa-compact-disc"></i>
+                                </div>
+                                <div class="track-info">
+                                    <div class="track-title" id="currentTrack">Chill Vibes</div>
+                                    <div class="track-artist" id="currentArtist">Lo-Fi Beats</div>
+                                    <div class="track-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="progressFill"></div>
+                                        </div>
+                                        <div class="time-display">
+                                            <span id="currentTime">0:00</span>
+                                            <span id="totalTime">3:45</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="music-controls">
+                                <button class="control-btn" id="prevBtn" title="Previous">
+                                    <i class="fas fa-step-backward"></i>
+                                </button>
+                                <button class="control-btn play-btn" id="playBtn" title="Play/Pause">
+                                    <i class="fas fa-pause"></i>
+                                </button>
+                                <button class="control-btn" id="nextBtn" title="Next">
+                                    <i class="fas fa-step-forward"></i>
+                                </button>
+                                <button class="control-btn" id="volumeBtn" title="Volume">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
+
+                            <div class="playlist">
+                                <div class="playlist-header">
+                                    <i class="fas fa-list"></i>
+                                    <span>Select a Song</span>
+                                </div>
+                                <div class="song-list" id="songList">
+                                    <!-- Songs will be loaded dynamically -->
+                                </div>
+                            </div>
+
+                            <div class="volume-control">
+                                <i class="fas fa-volume-down"></i>
+                                <input type="range" id="volumeSlider" min="0" max="100" value="80">
+                                <i class="fas fa-volume-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attack Simulation Panel -->
+                <div class="card attack-card">
+                    <div class="card-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <h2>Security Controls</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="attack-simulator">
+                            <div class="simulator-info">
+                                <i class="fas fa-info-circle"></i>
+                                <p>Simulate different attack scenarios to test ML detection</p>
+                            </div>
+                            
+                            <div class="attack-options">
+                                <div class="attack-option" data-attack="gps">
+                                    <div class="attack-icon">
+                                        <i class="fas fa-satellite-dish"></i>
+                                    </div>
+                                    <div class="attack-info">
+                                        <h4>GPS Spoofing</h4>
+                                        <p>Simulate GPS location jump</p>
+                                    </div>
+                                    <button class="simulate-btn test-attack-btn" data-attack="gps">
+                                        <i class="fas fa-play"></i>
+                                        Test Attack
+                                    </button>
+                                </div>
+
+                                <div class="attack-option" data-attack="speed">
+                                    <div class="attack-icon">
+                                        <i class="fas fa-tachometer-alt-fast"></i>
+                                    </div>
+                                    <div class="attack-info">
+                                        <h4>Speed Injection</h4>
+                                        <p>Inject impossible speed values</p>
+                                    </div>
+                                    <button class="simulate-btn test-attack-btn" data-attack="speed">
+                                        <i class="fas fa-play"></i>
+                                        Test
+                                    </button>
+                                </div>
+
+                                <div class="attack-option" data-attack="pattern">
+                                    <div class="attack-icon">
+                                        <i class="fas fa-brain"></i>
+                                    </div>
+                                    <div class="attack-info">
+                                        <h4>Pattern Anomaly</h4>
+                                        <p>ML pattern detection test</p>
+                                    </div>
+                                    <button class="simulate-btn test-attack-btn" data-attack="pattern">
+                                        <i class="fas fa-play"></i>
+                                        Test
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="system-controls">
+                                <button class="system-btn reset-btn" id="resetSystem">
+                                    <i class="fas fa-redo"></i>
+                                    Reset System
+                                </button>
+                                <button class="system-btn emergency-btn" id="emergencyAttack">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Emergency Attack
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Status Bar -->
+        <footer class="dashboard-footer">
+            <div class="footer-content">
+                <div class="status-item" id="mlBackendStatus">
+                    <div class="status-dot connecting"></div>
+                    <span>ML Backend: <strong>Connecting...</strong></span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot active"></div>
+                    <span>GPS: <strong>12.9166, 77.6161</strong></span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot normal"></div>
+                    <span>Battery: <strong>78%</strong></span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot processing"></div>
+                    <span>ML Processing: <strong>Active</strong></span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="currentTimeDisplay">--:--:--</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Attack Simulation Pop-up -->
+    <div class="attack-simulation-overlay" id="attackSimulationOverlay">
+        <div class="attack-simulation-alert">
+            <div class="attack-simulation-header">
+                <div class="attack-simulation-icon">
+                    <i class="fas fa-bug"></i>
+                </div>
+                <h2>ATTACK SIMULATED</h2>
+            </div>
+            
+            <div class="attack-simulation-body">
+                <div class="simulation-type" id="simulationType">GPS Spoofing Attack</div>
+                <div class="simulation-message">
+                    Attack simulation detected. Switching to safe mode in:
+                </div>
+                
+                <div class="simulation-countdown">
+                    <div class="countdown-number" id="simulationCountdown">6</div>
+                    <div class="countdown-label">seconds</div>
+                </div>
+                
+                <div class="simulation-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="simulationProgress"></div>
+                    </div>
+                </div>
+                
+                <div class="attack-simulation-actions">
+                    <button class="attack-simulation-btn acknowledge-btn" id="acknowledgeSimulation">
+                        <i class="fas fa-check"></i>
+                        Acknowledge
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Safe Mode Overlay -->
+    <div class="safe-mode-overlay" id="safeModeOverlay">
+        <div class="safe-mode-content">
+            <div class="safe-mode-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2>SAFE MODE ACTIVATED</h2>
+            <p>ML protection system has taken control. Systems are secured.</p>
+            <div class="safe-mode-status">
+                <div class="status-item">
+                    <i class="fas fa-map"></i>
+                    <span>Map Tracking: <strong class="disabled">FROZEN</strong></span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-music"></i>
+                    <span>Music System: <strong class="disabled">DISABLED</strong></span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-brain"></i>
+                    <span>ML Analysis: <strong class="active">MONITORING</strong></span>
+                </div>
+            </div>
+            <button class="acknowledge-safe-mode" id="acknowledgeSafeMode">
+                <i class="fas fa-check-circle"></i>
+                Acknowledge
+            </button>
+        </div>
+    </div>
+
+    <!-- Audio Player -->
+    <audio id="audioPlayer" src="songs/song1.mp3"></audio>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>
